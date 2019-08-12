@@ -1,0 +1,35 @@
+FROM alpine:latest
+
+#Install Java 8 using alpine linux apk pacakge manager
+
+RUN apk --update --no-cache add openjdk8
+
+#Setup JAVA_HOME and PATH environment variables
+
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+ENV PATH $PATH:$JAVA_HOME/bin
+
+#Download and setup tomcat to /opt directory. Using CURL to download tomcat gzip file and TAR to extract contents.
+
+RUN mkdir temp && \
+    cd temp && \
+    apk add curl && \
+    curl -O https://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.43/bin/apache-tomcat-8.5.43.tar.gz  && \
+    tar -xf apache-tomcat-8.5.43.tar.gz -C /opt/ && \
+    rm -rf temp
+
+#Copy application war file to tomcat webapps directory
+
+COPY gs-rest-service-0.1.0.war /opt/apache-tomcat-8.5.43/webapps/gs-rest-service-0.1.0.war
+
+#Expose port 8080 which is tomcat default port
+
+EXPOSE 8080
+
+#Set defulat argument for entry point
+
+CMD ["run"]
+
+#Defining what our container runs
+
+ENTRYPOINT ["/opt/apache-tomcat-8.5.43/bin/catalina.sh"]
